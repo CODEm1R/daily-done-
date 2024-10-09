@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "253358868205",
+    "project_id": "dailydone-bb998",
+    "storage_bucket": "dailydone-bb998.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:253358868205:android:477b80c101d1fac5b12ee4",
+        "android_client_info": {
+          "package_name": "com.example.todo_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkV_Hlvsr82vgdwzQ8StHpUB6nTJB8Aac"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
