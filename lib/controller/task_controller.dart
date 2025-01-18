@@ -9,6 +9,7 @@ class TaskController extends GetxController{
   DataManager dataManager = DataManager();
   SharedPref sharedPref = SharedPref();
 
+
   // List of tasks
   var tasks = <Task>[].obs;
 

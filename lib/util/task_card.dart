@@ -25,6 +25,7 @@ class _TaskCardState extends State<TaskCard> {
     setState(() {
       widget.task.isCompleted = !widget.task.isCompleted;
     });
+    // Fix 1
     sharedPref.saveUserList(_taskController.tasks);
   }
 
@@ -33,6 +34,7 @@ class _TaskCardState extends State<TaskCard> {
     setState(() {
       widget.task.isFavorite = !widget.task.isFavorite;
     });
+    // Fix 2
     sharedPref.saveUserList(_taskController.tasks);
   }
 
@@ -73,6 +75,7 @@ class _TaskCardState extends State<TaskCard> {
                         ElevatedButton.icon(
                             onPressed: () {
                               // edit task function/page
+                              // Fix 3
                               Navigator.push(context, MaterialPageRoute(builder: (context)=> UpdateTask(task: widget.task)));
                             },
                             icon: const Icon(Icons.edit),

@@ -1,4 +1,5 @@
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 
@@ -16,8 +17,6 @@ class Task {
   bool isFavorite;
   bool isCompleted;
 
-  //static List<Task> favorites = [];
-  //static List<Task> completedTasks = [];
 
   Task({
     required this.task_name,
@@ -34,7 +33,7 @@ class Task {
         task_name: json['task_name'],
         task_description: json['task_description'],
         task_priority: TaskPriority.values.byName(json['task_priority']),
-        task_date: DateTime.parse(json['task_date']),
+        task_date: (json['task_date'] as Timestamp).toDate(),
         taskID: json['ID'] ?? maxID,
         isFavorite: json['isFavorite'] ?? false,
         isCompleted: json['isCompleted'] ?? false,
@@ -46,7 +45,7 @@ class Task {
       'task_name' : task_name,
       'task_description' : task_description,
       'task_priority' : task_priority.name,
-      'task_date' : task_date.toIso8601String(),
+      'task_date' : task_date, //.toIso8601String()
       'ID' : taskID,
       'isFavorite' : isFavorite,
       'isCompleted' : isCompleted

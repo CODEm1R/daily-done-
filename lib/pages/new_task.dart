@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:todo_app/controller/task_controller.dart';
+import 'package:todo_app/data_manager/firestore_manager.dart';
 import 'package:todo_app/util/task.dart';
 
 
@@ -15,6 +16,7 @@ class NewTask extends StatefulWidget {
 class _NewTaskState extends State<NewTask> {
 
   final TaskController _taskController = Get.find();
+  final FireStoreManager _fireStoreManager = FireStoreManager();
 
   TaskPriority? selectedPriority;
 
@@ -112,7 +114,8 @@ class _NewTaskState extends State<NewTask> {
                               isCompleted: false
                           );
 
-                          _taskController.addTaskAndSave(_taskController.tasks,newtask, context);
+                          //_taskController.addTaskAndSave(_taskController.tasks,newtask, context);
+                          _fireStoreManager.addTask(newtask);
                           Task.maxID ++;
                           tfTaskName.clear();
                           tfTaskDescription.clear();

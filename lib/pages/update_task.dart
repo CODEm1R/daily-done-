@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todo_app/data_manager/firestore_manager.dart';
 import 'package:todo_app/util/task.dart';
 
 // MyCallBack
@@ -15,6 +16,8 @@ class UpdateTask extends StatefulWidget {
 }
 
 class _UpdateTaskState extends State<UpdateTask> {
+
+  final FireStoreManager _fireStoreManager = FireStoreManager();
 
   void updateTask (Task task) {
     setState(() {
@@ -112,6 +115,7 @@ class _UpdateTaskState extends State<UpdateTask> {
                   TextButton(
                       onPressed: (){
                         updateTask(widget.task);
+                        //_fireStoreManager.updateTask(taskId, widget.task)
                         tfTaskName.clear();
                         tfTaskDescription.clear();
                         Navigator.pop(context);

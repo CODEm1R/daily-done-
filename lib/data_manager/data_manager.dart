@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:todo_app/util/task.dart';
 
@@ -24,7 +22,6 @@ class DataManager {
   // delete task function
   void deleteTask(List<Task>tasks,Task task) {
     tasks.remove(task);
-    print("Deleted 1 item,tasks length: ${tasks.length}");
   }
 
 }

@@ -12,12 +12,12 @@ class NavBarMenu extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero, // bg photo full screen
         children: [
-          const UserAccountsDrawerHeader(
+          UserAccountsDrawerHeader(
               accountName: Text("Emir Sağlam",style: TextStyle(color: Colors.black)),
               accountEmail: Text(
                   "emirsaglam.4747@gmail.com",
                   style: TextStyle(color: Colors.black)),
-              /*currentAccountPicture: GestureDetector(
+              currentAccountPicture: GestureDetector(
                 onDoubleTap: (){
                   Navigator.push(
                       context, MaterialPageRoute(
@@ -32,13 +32,13 @@ class NavBarMenu extends StatelessWidget {
                     ),
                   ),
                 ),
-              ),*/
-            /*decoration: const BoxDecoration(
+              ),
+            decoration: const BoxDecoration(
               image: DecorationImage(
                   image: NetworkImage('https://mysoftcrm.com/wp-content/uploads/2020/12/G%C3%B6rev.png'),
                   fit: BoxFit.cover
               ),
-            ), */
+            ),
           ),
           ListTile(
             leading: const Icon(Icons.person_rounded),

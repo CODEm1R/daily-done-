@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:todo_app/controller/task_controller.dart';
+import 'package:todo_app/data_manager/firestore_manager.dart';
 import 'package:todo_app/pages/navbar_menu.dart';
 import 'package:todo_app/pages/new_task.dart';
 //import 'package:flutter/src/widgets/container.dart';
@@ -9,16 +11,17 @@ import 'package:todo_app/util/task.dart';
 import 'package:todo_app/util/task_card.dart';
 
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+class FireStoreHomePage extends StatefulWidget {
+  const FireStoreHomePage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<FireStoreHomePage> createState() => _FireStoreHomePage();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _FireStoreHomePage extends State<FireStoreHomePage> {
 
-  final _taskController = Get.put(TaskController());
+  //final _taskController = Get.put(TaskController());
+  final FireStoreManager _fireStoreManager = FireStoreManager();
 
   // DateTime variables
   DateTime _focusedDay = DateTime.now();
@@ -32,8 +35,11 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _taskController.loadTasks();
-    foundTasks = _taskController.tasks;
+    //_taskController.loadTasks();
+    _fireStoreManager.getTasks() ;
+
+    //foundTasks = _taskController.tasks;
+    foundTasks = _fireStoreManager.getTasks() as List<Task>;
   }
 
   TextEditingController tfSearchWord = TextEditingController();
@@ -41,12 +47,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _runFilter(String enteredKeyWord){
     List<Task> results = [];
+    List<Task> toFilter = [];
 
     if(enteredKeyWord.isEmpty){
-      results = _taskController.tasks;
+      //results = _taskController.tasks;
+      results = _fireStoreManager.getTasks() as List<Task>;
     }
     else{
-      results = _taskController.tasks
+      toFilter = _fireStoreManager.getTasks() as List<Task>;
+      results = toFilter
           .where((task) => task.task_name.toLowerCase().contains(enteredKeyWord.toLowerCase()))
           .toList();
     }
@@ -93,7 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
           }, icon: const Icon(Icons.close))
         ],
       )
-      : AppBar(
+          : AppBar(
         foregroundColor: Colors.white,
         backgroundColor: Colors.deepPurple,
         title: const Text(
@@ -137,8 +146,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       setState(() {
                         _selectedDay = DateTime(selectedDay.year, selectedDay.month, selectedDay.day);
                         _focusedDay = focusedDay; // Update Calendar
-                        ondaytasks = _taskController.tasks.where((task) => task.task_date == _selectedDay).toList();
-                        print("onDayTasks length : ${_taskController.tasks.length}");
+                        ondaytasks = foundTasks.where((task) => task.task_date == _selectedDay).toList();
+                        print("onDayTasks length : ${ondaytasks.length}");
                         isSearch = false;
                       });
                     },
@@ -152,44 +161,63 @@ class _MyHomePageState extends State<MyHomePage> {
                 height: 30,
                 child: Text("Tasks",style: TextStyle(color: Colors.deepPurple[200],fontSize: 20),),
               )
-              : SizedBox(
+                  : SizedBox(
                 height: 30,
                 child: Text("On Day Tasks",style: TextStyle(color: Colors.deepPurple[200],fontSize: 20),),
               ),
 
               // Tasks List
               Expanded(
-                child: GetBuilder<TaskController>(
-                    builder: (controller){
-                      return ListView.builder(
-                          itemCount: isSearch? foundTasks.length : ondaytasks.length,
-                          itemBuilder: (context, index) {
-                            return Dismissible(
-                              // Delete a Task
-                              key: UniqueKey(),
-                              direction: DismissDirection.endToStart,
-                              onDismissed: (direction) {
-                                controller.deleteTaskAndSave(controller.tasks,ondaytasks[index]);
-                                },
-                              background: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: const Icon(
-                                  Icons.delete,
-                                  color: Colors.white,
-                                ),
-                              ),
+                  child: StreamBuilder(
+                    stream: _fireStoreManager.getTasks(),
+                      builder: (context,snapshot){
+                      List tasks = snapshot.data!;
+                      // Görevleri filtreleme
+                      List filteredTasks = tasks.where((task) {
+                        // Firestore'dan alınan her belgenin task_date alanını kontrol ediyoruz
+                        var taskTimestamp = task['task_date']; // Firestore Timestamp formatında
+                        //DateTime taskDate = taskTimestamp.toDate(); // Timestamp'i DateTime'a dönüştür
 
-                              // Task Card
-                              child:TaskCard(
-                                task: isSearch? foundTasks[index] : ondaytasks[index],
-                              ),
-                            );
-                          });
-                    }
-                )
+                        // Yalnızca tarihi seçili tarihle eşleşenleri döndür
+                        return taskTimestamp == _selectedDay;
+                            /*
+                            taskDate.year == _focusedDay.year &&
+                            taskDate.month == _focusedDay.month &&
+                            taskDate.day == _focusedDay.day;
+                             */
+                      }).toList();
+                        return ListView.builder(
+                            itemCount: isSearch? foundTasks.length : filteredTasks.length,
+                            itemBuilder: (context, index) {
+                              Task task = tasks[index].data();
+                              String taskID = tasks[index].id;
+                              return Dismissible(
+                                // DELETE a Task
+                                key: UniqueKey(),
+                                direction: DismissDirection.endToStart,
+                                onDismissed: (direction) {
+                                  //controller.deleteTaskAndSave(controller.tasks,ondaytasks[index]);
+                                  _fireStoreManager.deleteTask(taskID);
+                                },
+                                background: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: const Icon(
+                                    Icons.delete,
+                                    color: Colors.white,
+                                  ),
+                                ),
+
+                                // Task Card
+                                child:TaskCard(
+                                  task: isSearch? foundTasks[index] : filteredTasks[index],
+                                ),
+                              );
+                            });
+                      }
+                  )
 
               ),
             ],
@@ -209,7 +237,6 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Colors.deepPurple[200],
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (context)=> const NewTask()));
-          print(_taskController.tasks.length);
         },
         child: const Icon(
           Icons.add,
